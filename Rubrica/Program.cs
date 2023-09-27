@@ -1,23 +1,37 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 
 StreamReader r = new("rubrica.json");
-string? json = r.ReadLine();
-if (json == null)
+
+List<Contatto> rubrica = new();
+
+while (true)
+{
+    string? line = r.ReadLine();
+    if (line == null)
+        break;
+
+    Contatto? contatto = JsonSerializer.Deserialize<Contatto>(line);
+    if (contatto == null)
+    {
+        Console.WriteLine("Error");
+        return;
+    }
+
+        rubrica.Add(contatto);
+}
+
+
+if (rubrica == null)
 {
     Console.WriteLine("Error");
     return;
 }
-
-Contatto? contatto = JsonSerializer.Deserialize<Contatto>(json);
-
-if (contatto == null)
+foreach (Contatto contatto in rubrica)
 {
-    Console.WriteLine("Error");
-    return;
+    Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
 }
-
-Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
 
 public class Contatto
 {
