@@ -1,24 +1,25 @@
 ﻿using System.Text.Json;
 
 
-StreamReader r = new("rubrica.json");
-
 List<Contatto> rubrica = new();
 
-while (true)
+using (StreamReader r = new("rubrica.json"))
 {
-    string? line = r.ReadLine();
-    if (line == null)
-        break;
-
-    Contatto? contatto = JsonSerializer.Deserialize<Contatto>(line);
-    if (contatto == null)
+    while (true)
     {
-        Console.WriteLine("Error");
-        return;
-    }
+        string? line = r.ReadLine();
+        if (line == null)
+            break;
 
-    rubrica.Add(contatto);
+        Contatto? contatto = JsonSerializer.Deserialize<Contatto>(line);
+        if (contatto == null)
+        {
+            Console.WriteLine("Error");
+            return;
+        }
+
+        rubrica.Add(contatto);
+    }
 }
 
 
@@ -33,11 +34,12 @@ string operazione = "";
 
 if (args.Length > 0)
 {
+    parametri = args;
     operazione = args[0];
 }
 else
 {
-    List<string> operazioni_disponibili = new() { "lista", "cerca", };
+    List<string> operazioni_disponibili = new() { "lista", "cerca", "nuovo", };
     Console.WriteLine($"""Operazioni disponibili: {String.Join(", ", operazioni_disponibili)}""");
     while (true)
     {
@@ -77,6 +79,29 @@ switch (operazione)
         foreach (var contatto in rubrica.Where(c => c.Nome.Contains(q) || c.Cognome.Contains(q) || c.Numero.Contains(q)))
             Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
         break;
+
+    case "nuovo":
+        Console.Write("Nome: ");
+        string nome = args.ElementAtOrDefault(1) ?? Console.ReadLine() ?? throw new OperationCanceledException();
+
+        Console.Write("Cognome: ");
+        string cognome = args.ElementAtOrDefault(2) ?? Console.ReadLine() ?? throw new OperationCanceledException();
+
+        Console.Write("Numero: ");
+        string numero = args.ElementAtOrDefault(3) ?? Console.ReadLine() ?? throw new OperationCanceledException();
+
+        rubrica.Add(new Contatto(nome, cognome, numero));
+
+        using (StreamWriter w = new("rubrica.json"))
+        {
+            foreach (Contatto contatto in rubrica)
+            {
+                w.WriteLine(JsonSerializer.Serialize<Contatto>(contatto));
+            }
+        }
+
+        break;
+
 
     default:
         Console.WriteLine("Comando non riconosciuto");
