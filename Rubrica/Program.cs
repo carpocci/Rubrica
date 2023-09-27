@@ -81,14 +81,26 @@ switch (operazione)
         break;
 
     case "nuovo":
-        Console.Write("Nome: ");
-        string nome = args.ElementAtOrDefault(1) ?? Console.ReadLine() ?? throw new OperationCanceledException();
+        string? nome = parametri.ElementAtOrDefault(1);
+        if (nome == null)
+        {
+            Console.Write("Nome: ");
+            nome = Console.ReadLine() ?? throw new OperationCanceledException();
+        }
 
-        Console.Write("Cognome: ");
-        string cognome = args.ElementAtOrDefault(2) ?? Console.ReadLine() ?? throw new OperationCanceledException();
+        string? cognome = parametri.ElementAtOrDefault(2);
+        if (cognome == null)
+        {
+            Console.Write("Cognome: ");
+            cognome = Console.ReadLine() ?? throw new OperationCanceledException();
+        }
 
-        Console.Write("Numero: ");
-        string numero = args.ElementAtOrDefault(3) ?? Console.ReadLine() ?? throw new OperationCanceledException();
+        string? numero = parametri.ElementAtOrDefault(3);
+        if (numero == null)
+        {
+            Console.Write("Numero: ");
+            numero = Console.ReadLine() ?? throw new OperationCanceledException();
+        }
 
         rubrica.Add(new Contatto(nome, cognome, numero));
 
@@ -99,6 +111,8 @@ switch (operazione)
                 w.WriteLine(JsonSerializer.Serialize<Contatto>(contatto));
             }
         }
+
+        Console.WriteLine("Contatto aggiunto!");
 
         break;
 
