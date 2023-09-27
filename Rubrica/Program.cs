@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 
 StreamReader r = new("rubrica.json");
@@ -19,7 +18,7 @@ while (true)
         return;
     }
 
-        rubrica.Add(contatto);
+    rubrica.Add(contatto);
 }
 
 
@@ -28,10 +27,37 @@ if (rubrica == null)
     Console.WriteLine("Error");
     return;
 }
-foreach (Contatto contatto in rubrica)
+
+if (args.Length < 1)
 {
-    Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
+    Console.WriteLine("Nessun comando");
+    return;
 }
+
+switch (args[0])
+{
+    case "lista":
+        foreach (Contatto contatto in rubrica)
+            Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
+        break;
+
+    case "cerca":
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Error: no query");
+            return;
+        }
+        string q = args[1];
+        foreach (var contatto in rubrica.Where(c => c.Nome.Contains(q) || c.Cognome.Contains(q) || c.Numero.Contains(q)))
+            Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
+        break;
+
+    default:
+        Console.WriteLine("Comando non riconosciuto");
+        break;
+
+}
+
 
 public class Contatto
 {
