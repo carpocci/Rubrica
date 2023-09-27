@@ -1,4 +1,6 @@
-﻿public class Contatto
+﻿namespace carpocci.rubrica.json;
+
+public class Contatto
 {
     public Contatto(string nome, string cognome, string numero)
     {

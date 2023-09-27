@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using carpocci.rubrica.json;
+using System.Text.Json;
+
 
 
 List<Contatto> rubrica = new();
@@ -65,8 +67,7 @@ else
 switch (operazione)
 {
     case "lista":
-        foreach (Contatto contatto in rubrica)
-            stampa(contatto);
+        Console.WriteLine(Class1.Lista(rubrica));
         break;
 
     case "cerca":
@@ -76,8 +77,8 @@ switch (operazione)
             Console.Write("Cosa vuoi cercare? ");
             q = Console.ReadLine() ?? throw new OperationCanceledException();
         }
-        foreach (var contatto in rubrica.Where(c => c.Nome.Contains(q) || c.Cognome.Contains(q) || c.Numero.Contains(q)))
-            Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
+        foreach (Contatto contatto in Class1.Cerca(rubrica, q))
+            Console.WriteLine(Class1.Format(contatto));
         break;
 
     case "nuovo":
@@ -102,11 +103,9 @@ switch (operazione)
             numero = Console.ReadLine() ?? throw new OperationCanceledException();
         }
 
-        rubrica.Add(new Contatto(nome, cognome, numero));
-        aggiorna(rubrica);
-
+        Contatto nuovo = new(nome, cognome, numero);
+        Class1.Aggiungi(rubrica, nuovo);
         Console.WriteLine("Contatto aggiunto!");
-
         break;
 
     case "cancella":
@@ -116,46 +115,27 @@ switch (operazione)
             Console.Write("Chi vuoi cancellare? ");
             search = Console.ReadLine() ?? throw new OperationCanceledException();
         }
-        IEnumerable<Contatto> delete_list = rubrica.Where(c => c.Nome.Contains(search) || c.Cognome.Contains(search) || c.Numero.Contains(search)).ToList();
+        IEnumerable<Contatto> delete_list = Class1.Cerca(rubrica, search);
         switch (delete_list.Count())
         {
             case 0:
                 Console.WriteLine($"{search} non trovato.");
                 break;
             case 1:
-                Contatto delete = delete_list.First();
-                rubrica.Remove(delete);
-                Console.Write($"Cancellato ");
-                stampa(delete);
-                aggiorna(rubrica);
+                Contatto vecchio = delete_list.First();
+                Class1.Cancella(rubrica, vecchio);
+                Console.WriteLine($"Cancellato {Class1.Format(vecchio)}");
                 break;
             default:
                 Console.WriteLine("Nome ambiguo:");
                 foreach (Contatto contatto in delete_list)
-                    stampa(contatto);
+                    Console.WriteLine(Class1.Format(contatto));
                 break;
         }
         break;
-
 
     default:
         Console.WriteLine("Comando non riconosciuto");
         break;
 
-}
-
-static void aggiorna(List<Contatto> rubrica)
-{
-    using (StreamWriter w = new("rubrica.json"))
-    {
-        foreach (Contatto contatto in rubrica)
-        {
-            w.WriteLine(JsonSerializer.Serialize<Contatto>(contatto));
-        }
-    }
-}
-
-static void stampa(Contatto contatto)
-{
-    Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
 }

@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\carpocci.rubrica.json\carpocci.rubrica.json.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="rubrica.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
