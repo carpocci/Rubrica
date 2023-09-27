@@ -28,13 +28,39 @@ if (rubrica == null)
     return;
 }
 
-if (args.Length < 1)
+string[]? parametri = null;
+string operazione = "";
+
+if (args.Length > 0)
 {
-    Console.WriteLine("Nessun comando");
-    return;
+    operazione = args[0];
+}
+else
+{
+    List<string> operazioni_disponibili = new() { "lista", "cerca", };
+    Console.WriteLine($"""Operazioni disponibili: {String.Join(", ", operazioni_disponibili)}""");
+    while (true)
+    {
+        Console.Write("Cosa vuoi fare? ");
+        string? line = Console.ReadLine();
+        if (line == null)
+            return;
+        parametri = line.Split();
+        operazione = parametri[0];
+        if (operazione == null)
+        {
+            return;
+        }
+        if (!operazioni_disponibili.Contains(operazione))
+        {
+            Console.WriteLine($"{operazione}: operazione non riconosciuta!");
+            continue;
+        }
+        break;
+    }
 }
 
-switch (args[0])
+switch (operazione)
 {
     case "lista":
         foreach (Contatto contatto in rubrica)
@@ -42,12 +68,12 @@ switch (args[0])
         break;
 
     case "cerca":
-        if (args.Length < 2)
+        if (parametri is null || parametri.Length < 2)
         {
             Console.WriteLine("Error: no query");
             return;
         }
-        string q = args[1];
+        string q = parametri[1];
         foreach (var contatto in rubrica.Where(c => c.Nome.Contains(q) || c.Cognome.Contains(q) || c.Numero.Contains(q)))
             Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
         break;
@@ -56,12 +82,4 @@ switch (args[0])
         Console.WriteLine("Comando non riconosciuto");
         break;
 
-}
-
-
-public class Contatto
-{
-    public string Nome { get; set; } = "";
-    public string Cognome { get; set; } = "";
-    public string Numero { get; set; } = "";
 }

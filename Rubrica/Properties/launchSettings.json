@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Rubrica": {
-      "commandName": "Project",
-      "commandLineArgs": "cerca\r\nMaria"
+      "commandName": "Project"
     }
   }
 }
