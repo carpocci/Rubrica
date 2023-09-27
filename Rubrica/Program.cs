@@ -39,7 +39,7 @@ if (args.Length > 0)
 }
 else
 {
-    List<string> operazioni_disponibili = new() { "lista", "cerca", "nuovo", };
+    List<string> operazioni_disponibili = new() { "lista", "cerca", "nuovo", "cancella", };
     Console.WriteLine($"""Operazioni disponibili: {String.Join(", ", operazioni_disponibili)}""");
     while (true)
     {
@@ -66,16 +66,16 @@ switch (operazione)
 {
     case "lista":
         foreach (Contatto contatto in rubrica)
-            Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
+            stampa(contatto);
         break;
 
     case "cerca":
-        if (parametri is null || parametri.Length < 2)
+        string? q = parametri.ElementAtOrDefault(1);
+        if (q == null)
         {
-            Console.WriteLine("Error: no query");
-            return;
+            Console.Write("Cosa vuoi cercare? ");
+            q = Console.ReadLine() ?? throw new OperationCanceledException();
         }
-        string q = parametri[1];
         foreach (var contatto in rubrica.Where(c => c.Nome.Contains(q) || c.Cognome.Contains(q) || c.Numero.Contains(q)))
             Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
         break;
@@ -103,17 +103,38 @@ switch (operazione)
         }
 
         rubrica.Add(new Contatto(nome, cognome, numero));
-
-        using (StreamWriter w = new("rubrica.json"))
-        {
-            foreach (Contatto contatto in rubrica)
-            {
-                w.WriteLine(JsonSerializer.Serialize<Contatto>(contatto));
-            }
-        }
+        aggiorna(rubrica);
 
         Console.WriteLine("Contatto aggiunto!");
 
+        break;
+
+    case "cancella":
+        string? search = parametri.ElementAtOrDefault(1);
+        if (search == null)
+        {
+            Console.Write("Chi vuoi cancellare? ");
+            search = Console.ReadLine() ?? throw new OperationCanceledException();
+        }
+        IEnumerable<Contatto> delete_list = rubrica.Where(c => c.Nome.Contains(search) || c.Cognome.Contains(search) || c.Numero.Contains(search)).ToList();
+        switch (delete_list.Count())
+        {
+            case 0:
+                Console.WriteLine($"{search} non trovato.");
+                break;
+            case 1:
+                Contatto delete = delete_list.First();
+                rubrica.Remove(delete);
+                Console.Write($"Cancellato ");
+                stampa(delete);
+                aggiorna(rubrica);
+                break;
+            default:
+                Console.WriteLine("Nome ambiguo:");
+                foreach (Contatto contatto in delete_list)
+                    stampa(contatto);
+                break;
+        }
         break;
 
 
@@ -121,4 +142,20 @@ switch (operazione)
         Console.WriteLine("Comando non riconosciuto");
         break;
 
+}
+
+static void aggiorna(List<Contatto> rubrica)
+{
+    using (StreamWriter w = new("rubrica.json"))
+    {
+        foreach (Contatto contatto in rubrica)
+        {
+            w.WriteLine(JsonSerializer.Serialize<Contatto>(contatto));
+        }
+    }
+}
+
+static void stampa(Contatto contatto)
+{
+    Console.WriteLine($"{contatto.Nome} {contatto.Cognome}: {contatto.Numero}");
 }
